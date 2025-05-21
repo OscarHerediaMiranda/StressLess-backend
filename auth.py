@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 from models import Lider, Colaborador
 from database import get_session
 from pydantic import BaseModel
-
+from jwt import create_access_token, verify_token
 
 router = APIRouter()
 
@@ -26,6 +26,6 @@ def login(data: LoginRequest, session: Session = Depends(get_session)):
     if not resultado or resultado.contrasenia != data.contrasenia:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
     
-    
+    token = create_access_token({"sub":data.correo,"rol":data.rol})
 
-    return 
+    return {"token":token}
