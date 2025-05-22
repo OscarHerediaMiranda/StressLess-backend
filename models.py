@@ -7,8 +7,8 @@ class Lider(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     nombre: str
     correo: str
-    nombre_lider: str
     contrasenia: str
+    estado: bool
 
 class Colaborador(SQLModel, table=True):
     _tablename_ = "colaborador"  # nombre de la tabla en minúsculas

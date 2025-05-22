@@ -22,7 +22,7 @@ def verify_token(token:str = Depends(oauth2_scheme)):
             raise credentials_exception
         if rol is None:
             raise credentials_exception
-        return correo
-    except JWTError: 
+        return {correo,rol}
+    except JWTError:
         raise credentials_exception
         
