@@ -4,7 +4,7 @@ from models import Lider, Colaborador
 from database import get_session
 from pydantic import BaseModel
 from jwt import create_access_token, verify_token
-
+import bcrypt
 router = APIRouter()
 
 class LoginRequest(BaseModel):
@@ -23,7 +23,7 @@ def login(data: LoginRequest, session: Session = Depends(get_session)):
         consulta = select(Colaborador).where(Colaborador.correo == data.correo)
         resultado = session.exec(consulta).first()
 
-    if not resultado or resultado.contrasenia != data.contrasenia:
+    if not resultado or bcrypt.checkpw(data.contrasenia.encode("utf-8"),resultado.contrasenia):
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
     
     token = create_access_token({"sub":data.correo,"rol":data.rol})
