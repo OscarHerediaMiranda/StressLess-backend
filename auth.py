@@ -23,7 +23,12 @@ def login(data: LoginRequest, session: Session = Depends(get_session)):
         consulta = select(Colaborador).where(Colaborador.correo == data.correo)
         resultado = session.exec(consulta).first()
 
-    if not resultado or bcrypt.checkpw(data.contrasenia.encode("utf-8"),resultado.contrasenia):
+    if not resultado:
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    
+    contrasenia_valida = bcrypt.checkpw(data.contrasenia.encode("utf-8"), resultado.contrasenia.encode("utf-8"))
+    
+    if not contrasenia_valida:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
     
     token = create_access_token({"sub":data.correo,"rol":data.rol})

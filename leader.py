@@ -14,8 +14,25 @@ class LeaderRequest(BaseModel):
     correo:str
     contrasenia:str
 
+@router.post("/leaders")
+def createLeader(data:Lider, session:Session = Depends(get_session), token = Depends(verify_token)):
+
+    consulta = select(Lider).where(Lider.correo == data.correo)
+    resultado = session.exec(consulta).first()
+
+    if resultado:
+        raise HTTPException(status_code=401, detail="Lider ya se encuentra registrado")
+    
+    data.contrasenia = bcrypt.hashpw(data.contrasenia.encode(),bcrypt.gensalt()).decode("utf-8")
+
+    session.add(data)
+    session.commit()
+    session.refresh(data)
+
+    return data
+
 @router.get("/leaders")
-def getLeaders(session: Session = Depends(get_session), data = Depends(verify_token)):
+def getLeaders(session: Session = Depends(get_session), token = Depends(verify_token)):
 
     consulta = select(Lider).where(Lider.estado == True)
     resultado = session.exec(consulta).all()
@@ -23,7 +40,7 @@ def getLeaders(session: Session = Depends(get_session), data = Depends(verify_to
     return resultado
 
 @router.put("/leaders/{leaders_id}")
-def update_leader(leaders_id: int, valor: Lider, session: Session = Depends(get_session)):
+def update_leader(leaders_id: int, valor: Lider, session: Session = Depends(get_session), token = Depends(verify_token)):
 
     consulta = select(Lider).where(Lider.id == leaders_id)
     resultado = session.exec(consulta).first()
@@ -31,12 +48,29 @@ def update_leader(leaders_id: int, valor: Lider, session: Session = Depends(get_
     if not resultado:
         raise HTTPException(status_code=401, detail="Usuario no encontrado")
     
-    valor.contrasenia = bcrypt.hashpw(valor.contrasenia.encode("utf-8"),bcrypt.gensalt())
+    valor.contrasenia = bcrypt.hashpw(valor.contrasenia.encode(),bcrypt.gensalt()).decode("utf-8")
 
     datos_dict = valor.dict(exclude_unset=True)
 
     for key,value in datos_dict.items():
         setattr(resultado,key,value)
+
+    session.add(resultado)
+    session.commit()
+    session.refresh(resultado)
+
+    return resultado
+
+@router.delete("leaders/{leaders_id}")
+def delete_leader(leaders_id: int, session:Session = Depends(get_session), token = Depends(verify_token)):
+
+    consulta = select(Lider).where(Lider.id == leaders_id)
+    resultado = session.exec(consulta).first()
+
+    if not resultado:
+        raise HTTPException(status_code=401, detail="Lider no encontrado")
+    
+    resultado.estado = False
 
     session.add(resultado)
     session.commit()
