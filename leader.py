@@ -1,18 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from models import Lider
+from models import Colaborador, Lider, LiderColaborador
 from database import get_session
 from pydantic import BaseModel
 from jwt import create_access_token, verify_token
 import bcrypt
 
 router = APIRouter()
-
-class LeaderRequest(BaseModel):
-    id:int
-    nombre:str
-    correo:str
-    contrasenia:str
 
 @router.post("/leaders")
 def createLeader(data:Lider, session:Session = Depends(get_session), token = Depends(verify_token)):
@@ -77,3 +71,17 @@ def delete_leader(leaders_id: int, session:Session = Depends(get_session), token
     session.refresh(resultado)
 
     return resultado
+
+@router.get("/leaders/{leaders_id}/collaborators")
+def getCollaboratorsByLeaderId(leaders_id:int, session:Session = Depends(get_session), token = Depends(verify_token)):
+
+    consulta_lider = select(Lider).where(Lider.id == leaders_id)
+    resultado = session.exec(consulta_lider).all()
+
+    if not resultado:
+        raise HTTPException(status_code=401, detail="Lider no encontrado")
+    
+    consulta = select(Colaborador).join(LiderColaborador,LiderColaborador.id_colaborador == Colaborador.id).where(LiderColaborador.id_lider == leaders_id)
+    colaboradores = session.exec(consulta).all()
+    
+    return colaboradores

@@ -8,12 +8,6 @@ import bcrypt
 
 router = APIRouter()
 
-class CollaboratorRequest(BaseModel):
-    id:int
-    nombre:str
-    correo:str
-    contrasenia:str
-
 @router.post("/collaborators")
 def createCollaborator(data:Colaborador, session: Session = Depends(get_session), token = Depends(verify_token)):
     
