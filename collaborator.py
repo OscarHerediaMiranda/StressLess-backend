@@ -4,6 +4,7 @@ from models import Colaborador
 from database import get_session
 from pydantic import BaseModel
 from jwt import create_access_token, verify_token
+from sqlalchemy import func
 import bcrypt
 
 router = APIRouter()
@@ -32,6 +33,15 @@ def getCollaborators(session: Session = Depends(get_session), token = Depends(ve
     resultado = session.exec(consulta).all()
     
     return resultado
+
+@router.get("/collaborators/{collaborators_name}")
+def getCollaboratorByName(collaborators_name:str, session:Session = Depends(get_session), token=Depends(verify_token)):
+
+    #consulta = select(Colaborador).like(f"%{collaborators_name}").all()
+    return session.query(Colaborador).filter(func.lower(Colaborador.nombre).like(f"%{collaborators_name.lower()}%")).all()
+    #resultado = session.exec(consulta).all()
+
+    #return resultado
 
 @router.put("/collaborators/{collaborators_id}")
 def update_collaborator(collaborators_id: int, valor: Colaborador, session: Session = Depends(get_session), token = Depends(verify_token)):
