@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from models import Colaborador
-from database import get_session
+from app.models.models import Colaborador
+from app.database.database import get_session
 from pydantic import BaseModel
-from jwt import create_access_token, verify_token
+from app.auth.jwt import create_access_token, verify_token
 from sqlalchemy import func
 import bcrypt
 

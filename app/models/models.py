@@ -1,9 +1,10 @@
 from datetime import date
 from sqlmodel import Relationship, SQLModel, Field
 from typing import List, Optional
+from app.models.base import Base
 
 class LiderColaborador(SQLModel, table=True):
-    _tablename_ = "lider_colaborador"  # nombre de la tabla en minúsculas
+    _tablename_ = "lidercolaborador"  # nombre de la tabla en minúsculas
     _table_args_ = {"schema": "public"}  # esquema en PostgreSQL
     id_lider:int = Field(foreign_key="lider.id",primary_key=True)
     id_colaborador:int = Field(foreign_key="colaborador.id",primary_key=True)
