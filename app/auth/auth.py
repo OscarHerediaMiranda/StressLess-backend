@@ -31,6 +31,6 @@ def login(data: LoginRequest, session: Session = Depends(get_session)):
     if not contrasenia_valida:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
     
-    token = create_access_token({"sub":data.correo,"rol":data.rol})
+    token = create_access_token({"sub":data.correo,"rol":data.rol, "id":resultado.id})
 
     return {"token":token}

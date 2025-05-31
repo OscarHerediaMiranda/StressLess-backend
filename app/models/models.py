@@ -9,7 +9,7 @@ class LiderColaborador(SQLModel, table=True):
     id_lider:int = Field(foreign_key="lider.id",primary_key=True)
     id_colaborador:int = Field(foreign_key="colaborador.id",primary_key=True)
     estado:str
-    id_invitacion:int
+    id_invitacion:int = Field(foreign_key="invitacion.id")
     fecha_inicio:date
     fecha_fin:date
 
