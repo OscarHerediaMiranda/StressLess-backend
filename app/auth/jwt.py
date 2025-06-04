@@ -2,6 +2,7 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
+from fastapi.encoders import jsonable_encoder
 from app.core.config import SECRET_KEY, ALGORITHM
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -18,11 +19,12 @@ def verify_token(token:str = Depends(oauth2_scheme)):
         payload = jwt.decode(token,SECRET_KEY,algorithms=ALGORITHM)
         correo:str = payload.get("sub")
         rol:str = payload.get("rol")
+        id:int = payload.get("id")
         if correo is None:
             raise credentials_exception
         if rol is None:
             raise credentials_exception
-        return {correo,rol}
+        return {"correo":correo,"rol":rol,"id":id}
     except JWTError:
         raise credentials_exception
         

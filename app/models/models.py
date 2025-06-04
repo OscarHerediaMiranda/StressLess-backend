@@ -15,6 +15,7 @@ class LiderColaborador(SQLModel, table=True):
 
     lider: Optional["Lider"] = Relationship(back_populates="colaboradores_link")
     colaborador: Optional["Colaborador"] = Relationship(back_populates="lideres_link")
+    invitacion: Optional["Invitacion"] = Relationship(back_populates="lider_colaborador_link")
 
 class Lider(SQLModel, table=True):
     _tablename_ = "lider"  # nombre de la tabla en minúsculas
@@ -46,3 +47,4 @@ class Invitacion(SQLModel, table=True):
     fecha_respuesta:date
     estado:bool
     codigo:str
+    lider_colaborador_link: List[LiderColaborador] = Relationship(back_populates="invitacion")
