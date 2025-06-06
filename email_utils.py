@@ -19,6 +19,9 @@ def enviar_correo(destinatario: str, otp: str):
     mensaje["From"] = EMAIL_USER
     mensaje["To"] = destinatario
 
+    print("EMAIL_USER", EMAIL_USER)
+    print("EMAIL_PASSWORD",EMAIL_PASSWORD)
+
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as servidor:
         servidor.login(EMAIL_USER, EMAIL_PASSWORD)
         servidor.sendmail(EMAIL_USER, destinatario, mensaje.as_string())
