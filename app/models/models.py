@@ -28,6 +28,28 @@ class Lider(SQLModel, table=True):
 
     colaboradores_link: List[LiderColaborador] = Relationship(back_populates="lider")
 
+class Invitacion(SQLModel, table=True):
+    _tablename_ = "invitacion"  # nombre de la tabla en minúsculas
+    _table_args_ = {"schema": "public"}  # esquema en PostgreSQL
+    id:Optional[int] = Field(default=None, primary_key=True)
+    fecha_envio:date
+    fecha_respuesta:date
+    estado:bool
+    codigo:str
+    lider_colaborador_link: List[LiderColaborador] = Relationship(back_populates="invitacion")
+
+class Prueba(SQLModel, table=True):
+    _tablename_ = "prueba" #nombre de la tabla en minúscula
+    _table_args_ = {"schema": "public"} # esquema en PostgreSQL
+    id:Optional[int] = Field(default=None, primary_key=True)
+    fecha_registo:date
+    fecha_resultado:date
+    id_colaborador:int = Field(foreign_key="colaborador.id")
+    estado:int
+    resultado:bool
+
+    colaborador: Optional["Colaborador"] = Relationship(back_populates="prueba_colaborador_link")
+
 class Colaborador(SQLModel, table=True):
     _tablename_ = "colaborador"  # nombre de la tabla en minúsculas
     _table_args_ = {"schema": "public"}  # esquema en PostgreSQL
@@ -38,13 +60,4 @@ class Colaborador(SQLModel, table=True):
     estado:bool
 
     lideres_link: List[LiderColaborador] = Relationship(back_populates="colaborador")
-
-class Invitacion(SQLModel, table=True):
-    _tablename_ = "invitacion"  # nombre de la tabla en minúsculas
-    _table_args_ = {"schema": "public"}  # esquema en PostgreSQL
-    id:Optional[int] = Field(default=None, primary_key=True)
-    fecha_envio:date
-    fecha_respuesta:date
-    estado:bool
-    codigo:str
-    lider_colaborador_link: List[LiderColaborador] = Relationship(back_populates="invitacion")
+    prueba_colaborador_link: List[Prueba] = Relationship(back_populates="colaborador")
