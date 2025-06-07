@@ -38,17 +38,35 @@ class Invitacion(SQLModel, table=True):
     codigo:str
     lider_colaborador_link: List[LiderColaborador] = Relationship(back_populates="invitacion")
 
+class Notificacion(SQLModel, table=True):
+    _tablename_ = "notificacion"
+    _table_args = {"schema": "public"} 
+    id: Optional[int] = Field(default=None, primary_key=True)
+    descripcion:str
+    estado:str
+    fecha_envio:date
+    id_prueba:int = Field(foreign_key="prueba.id")
+
+    prueba:Optional["Prueba"] = Relationship(back_populates="notificacion_prueba_link")
+
+    class Config:
+        orm_mode = True
+
 class Prueba(SQLModel, table=True):
     _tablename_ = "prueba" #nombre de la tabla en minúscula
     _table_args_ = {"schema": "public"} # esquema en PostgreSQL
     id:Optional[int] = Field(default=None, primary_key=True)
-    fecha_registo:date
+    fecha_registro:date
     fecha_resultado:date
     id_colaborador:int = Field(foreign_key="colaborador.id")
     estado:int
     resultado:bool
 
     colaborador: Optional["Colaborador"] = Relationship(back_populates="prueba_colaborador_link")
+    notificacion_prueba_link: List[Notificacion] = Relationship(back_populates="prueba")
+
+    class Config:
+        orm_mode = True
 
 class Colaborador(SQLModel, table=True):
     _tablename_ = "colaborador"  # nombre de la tabla en minúsculas
