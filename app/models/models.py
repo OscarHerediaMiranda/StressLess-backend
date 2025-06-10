@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from sqlmodel import Relationship, SQLModel, Field
 from typing import List, Optional
 from app.models.base import Base
@@ -79,3 +79,20 @@ class Colaborador(SQLModel, table=True):
 
     lideres_link: List[LiderColaborador] = Relationship(back_populates="colaborador")
     prueba_colaborador_link: List[Prueba] = Relationship(back_populates="colaborador")
+    # Tabla PreColaborador
+class PreColaborador(SQLModel, table=True):
+    __tablename__ = "precolaborador"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    nombre: str
+    correo: str
+    correo_lider: str
+
+
+class ResultadoAnalisis(SQLModel, table=True):
+    __tablename__ = "resultado_analisis"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    id_colaborador: int = Field(foreign_key="colaborador.id")
+    resultado: str
+    fecha: datetime = Field(default_factory=datetime.utcnow)
+    archivo_audio: str  
+

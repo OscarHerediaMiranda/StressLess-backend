@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from app.models.models import Colaborador, Lider, LiderColaborador
+from app.models.models import Colaborador, Lider, LiderColaborador, PreColaborador, Invitacion
 from app.database.database import get_session
 from pydantic import BaseModel
 from app.auth.jwt import create_access_token, verify_token
 import bcrypt
+from datetime import date
+import random
 
 router = APIRouter()
 
@@ -22,8 +24,42 @@ def createLeader(data:Lider, session:Session = Depends(get_session), token = Dep
     session.add(data)
     session.commit()
     session.refresh(data)
-
+    ##procesar_precolaboradores_para_lider(data, session)
     return data
+
+
+
+def procesar_precolaboradores_para_lider(nuevo_lider, session):
+    precolabs = session.exec(
+        select(PreColaborador).where(PreColaborador.correo_lider == nuevo_lider.correo)
+    ).all()
+
+    for precolab in precolabs:
+        codigo = str(random.randint(10000, 99999))
+
+        invitacion = Invitacion(
+            fecha_envio=date.today(),
+            fecha_respuesta=date.today(),
+            estado=False,
+            codigo=codigo
+        )
+        session.add(invitacion)
+        session.commit()
+        session.refresh(invitacion)
+
+        relacion = LiderColaborador(
+            id_lider=nuevo_lider.id,
+            id_colaborador=None,
+            estado="pendiente",
+            id_invitacion=invitacion.id,
+            fecha_inicio=date.today(),
+            fecha_fin=date.today()
+        )
+        session.add(relacion)
+
+        print(f"📩 Enviando a {precolab.correo} el código {codigo} desde el líder {nuevo_lider.nombre}")
+
+    session.commit()
 
 @router.get("/leaders")
 def getLeaders(session: Session = Depends(get_session), token = Depends(verify_token)):
