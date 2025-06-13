@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session, select
 from database import get_session
-from models import Colaborador, Invitacion, LiderColaborador, Lider, PreColaborador
+from app.models.models import Colaborador, Invitacion, LiderColaborador, Lider, PreColaborador
 import bcrypt
 from datetime import date
 from sqlalchemy import and_
@@ -80,7 +80,7 @@ def validar_codigo(codigo: str, session: Session = Depends(get_session)):
     ).first()
 
     precolab = session.exec(
-        select(PreColaborador).where(PreColaborador.correo_lider == lider.correo)
+        select(PreColaborador).where(PreColaborador.id == invitacion.id_precolaborador)
     ).first()
 
     return {

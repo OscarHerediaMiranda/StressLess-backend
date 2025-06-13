@@ -28,15 +28,28 @@ class Lider(SQLModel, table=True):
 
     colaboradores_link: List[LiderColaborador] = Relationship(back_populates="lider")
 
+class PreColaborador(SQLModel, table=True):
+    __tablename__ = "precolaborador"
+    _table_args_ = {"schema": "public"}  # esquema en PostgreSQL
+    id: Optional[int] = Field(default=None, primary_key=True)
+    nombre: str
+    correo: str
+    correo_lider: str
+
+    invitacion_precolaborador_link: List["Invitacion"] = Relationship(back_populates="precolaborador")
+
 class Invitacion(SQLModel, table=True):
     _tablename_ = "invitacion"  # nombre de la tabla en minúsculas
     _table_args_ = {"schema": "public"}  # esquema en PostgreSQL
     id:Optional[int] = Field(default=None, primary_key=True)
+    id_precolaborador:int = Field(foreign_key="precolaborador.id")
     fecha_envio:date
     fecha_respuesta:date
     estado:bool
     codigo:str
+
     lider_colaborador_link: List[LiderColaborador] = Relationship(back_populates="invitacion")
+    precolaborador: Optional[PreColaborador] = Relationship(back_populates="invitacion_precolaborador_link")
 
 class Notificacion(SQLModel, table=True):
     _tablename_ = "notificacion"
@@ -80,13 +93,6 @@ class Colaborador(SQLModel, table=True):
     lideres_link: List[LiderColaborador] = Relationship(back_populates="colaborador")
     prueba_colaborador_link: List[Prueba] = Relationship(back_populates="colaborador")
     # Tabla PreColaborador
-class PreColaborador(SQLModel, table=True):
-    __tablename__ = "precolaborador"
-    id: Optional[int] = Field(default=None, primary_key=True)
-    nombre: str
-    correo: str
-    correo_lider: str
-
 
 class ResultadoAnalisis(SQLModel, table=True):
     __tablename__ = "resultado_analisis"

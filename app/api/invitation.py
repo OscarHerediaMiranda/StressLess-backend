@@ -75,10 +75,11 @@ def send_invitations(id_lider: int, session: Session = Depends(get_session), tok
     for precolab in precolabs:
         # Crear la invitación
         invitacion = Invitacion(
+            id_precolaborador=precolab.id,
             fecha_envio=date.today(),
             fecha_respuesta=date.today(),
             estado=False,
-            codigo=otp
+            codigo=otp,
         )
         session.add(invitacion)
         session.commit()
