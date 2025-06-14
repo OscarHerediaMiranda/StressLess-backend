@@ -19,42 +19,6 @@ def generar_otp(longitud=6):
 
 otp = generar_otp()
 
-class InvitationRequest(BaseModel):
-    id_lider:int
-    collaborators:List[int]
-
-@router.post("/invitation")
-def createInvitation(request:InvitationRequest,session:Session = Depends(get_session),token = Depends(verify_token)):
-    
-    if token["id"] != request.id_lider:
-        raise HTTPException(status_code=401, detail="Lider no encontrado")
-    
-    invitacion:Invitacion = Invitacion(fecha_envio=datetime.now(),fecha_respuesta=None,estado=True,codigo=generar_otp())
-
-    session.add(invitacion)
-    session.commit()
-    session.refresh(invitacion)
-
-    for i in request.collaborators:
-        item = LiderColaborador(
-            id_lider=request.id_lider,
-            id_colaborador=i,
-            estado="Pendiente",
-            id_invitacion=invitacion.id,
-            fecha_inicio=datetime.now(),
-            fecha_fin=None
-        )
-        session.add(item)
-        session.commit()
-        session.refresh(item)
-
-        consulta = select(Colaborador).where(Colaborador.id == i)
-        colaborador = session.exec(consulta).first()
-
-        enviar_correo(colaborador.correo,otp)
-
-    return token
-
 @router.post("/send-invitations/{id_lider}")
 def send_invitations(id_lider: int, session: Session = Depends(get_session), token = Depends(verify_token)):
     # 1. Buscar al líder

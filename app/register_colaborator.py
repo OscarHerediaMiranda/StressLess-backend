@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session, select
-from database import get_session
+from app.database.database import get_session
 from app.models.models import Colaborador, Invitacion, LiderColaborador, Lider, PreColaborador
 import bcrypt
 from datetime import date
@@ -47,6 +47,10 @@ def register_colaborador(data: RegisterColaboradorRequest, session: Session = De
     relacion.fecha_inicio = date.today()
     relacion.fecha_fin = date.today()  # Puedes ajustar según tu lógica
 
+    session.add(relacion)
+    session.commit()
+    session.refresh(relacion)
+
     # Marcar invitación como usada
     invitacion.estado = True
     invitacion.fecha_respuesta = date.today()
@@ -86,6 +90,7 @@ def validar_codigo(codigo: str, session: Session = Depends(get_session)):
     return {
         "nombre": precolab.nombre,
         "correo": precolab.correo,
-        "id_lider": relacion.id_lider
+        "id_lider": relacion.id_lider,
+        "nombre_lider": lider.nombre
     }
 
