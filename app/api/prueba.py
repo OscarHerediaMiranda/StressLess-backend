@@ -6,6 +6,10 @@ from sqlmodel import Session
 from app.auth.jwt import verify_token
 from app.database.database import get_session
 from app.models.models import Notificacion, Prueba
+from app.models.models import Notificacion, Prueba, ResultadoAnalisis
+from sqlmodel import Session, select
+
+
 
 router = APIRouter()
 
@@ -39,3 +43,11 @@ def createPrueba(request:PruebaRequest, session:Session = Depends(get_session), 
         session.refresh(notificacion)
 
     return {"prueba":prueba,"notificacion":notificacion}
+
+
+@router.get("/historial/{id_colaborador}")
+def get_historial(id_colaborador: int, session: Session = Depends(get_session)):
+    resultados = session.exec(
+        select(ResultadoAnalisis).where(ResultadoAnalisis.id_colaborador == id_colaborador)
+    ).all()
+    return resultados
