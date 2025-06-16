@@ -35,12 +35,24 @@ async def predecir_audio(
         # Predecir
         resultado = predecir_estres(file_path)
 
-        # Guardar en DB
+        # Guardar en tabla PRUEBA
+        from app.models.models import Prueba
+        nueva_prueba = Prueba(
+            id_colaborador=id_colaborador,
+            fecha=datetime.utcnow().date(),
+            archivo_audio=filename
+        )
+        #session.add(nueva_prueba)
+        #session.commit()
+        #session.refresh(nueva_prueba)
+
+        # Guardar en tabla RESULTADO_ANALISIS
         nuevo_resultado = ResultadoAnalisis(
             id_colaborador=id_colaborador,
+            id_prueba=nueva_prueba.id,
             resultado=resultado,
             fecha=datetime.utcnow(),
-            archivo_audio=filename  
+            archivo_audio=filename
         )
         session.add(nuevo_resultado)
         session.commit()
