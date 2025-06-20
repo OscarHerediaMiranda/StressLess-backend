@@ -4,7 +4,12 @@ version = "0.1.0"
 dependencies = [
   "fastapi[all]",
   "sqlmodel",
-  "psycopg[binary]"
+  "psycopg[binary]",
+  "psycopg2-binary",
+  "python-jose[cryptography]",
+  "bcrypt",
+  "python-dotenv",
+  "librosa",
 ]
 
 [tool.fastapi]

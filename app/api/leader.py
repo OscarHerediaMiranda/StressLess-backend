@@ -27,8 +27,6 @@ def createLeader(data:Lider, session:Session = Depends(get_session)):
     ##procesar_precolaboradores_para_lider(data, session)
     return data
 
-
-
 def procesar_precolaboradores_para_lider(nuevo_lider, session):
     precolabs = session.exec(
         select(PreColaborador).where(PreColaborador.correo_lider == nuevo_lider.correo)
@@ -121,3 +119,14 @@ def getCollaboratorsByLeaderId(leaders_id:int, session:Session = Depends(get_ses
     colaboradores = session.exec(consulta).all()
     
     return colaboradores
+
+@router.get("/leaders/{leaders_id}/precollaborators")
+def listarPrecolaboradoresById(leaders_id:int, session:Session = Depends(get_session), token = Depends(verify_token)):
+
+    consulta_lider = select(Lider).where(Lider.id == leaders_id)
+    resultado_lider = session.exec(consulta_lider).first()
+
+    consulta_preColaborador = select(PreColaborador).where(PreColaborador.correo_lider == resultado_lider.correo)
+    resultado_preColaborador = session.exec(consulta_preColaborador).all()    
+
+    return resultado_preColaborador

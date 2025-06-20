@@ -17,8 +17,6 @@ router = APIRouter()
 def generar_otp(longitud=6):
     return ''.join(random.choices(string.digits, k=longitud))
 
-otp = generar_otp()
-
 @router.post("/send-invitations/{id_lider}")
 def send_invitations(id_lider: int, session: Session = Depends(get_session), token = Depends(verify_token)):
     # 1. Buscar al líder
@@ -38,6 +36,7 @@ def send_invitations(id_lider: int, session: Session = Depends(get_session), tok
 
     for precolab in precolabs:
         # Crear la invitación
+        otp = generar_otp()
         invitacion = Invitacion(
             id_precolaborador=precolab.id,
             fecha_envio=date.today(),
