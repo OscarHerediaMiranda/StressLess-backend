@@ -6,6 +6,8 @@ from app.models.models import Colaborador, Invitacion, LiderColaborador, Lider, 
 import bcrypt
 from datetime import date
 from sqlalchemy import and_
+from app.database.database import get_session
+
 
 router = APIRouter()
 
@@ -62,9 +64,11 @@ def register_colaborador(data: RegisterColaboradorRequest, session: Session = De
 
 @router.get("/validar-codigo/{codigo}")
 def validar_codigo(codigo: str, session: Session = Depends(get_session)):
+    print("📦 Código recibido:", codigo)
+    print("📦 Tipo del código:", type(codigo))
     invitacion = session.exec(
     select(Invitacion).where(
-        and_(Invitacion.codigo == codigo, Invitacion.estado == False)
+        and_(Invitacion.codigo == str(codigo), Invitacion.estado == False)
     )
 ).first()
 
@@ -91,6 +95,7 @@ def validar_codigo(codigo: str, session: Session = Depends(get_session)):
         "nombre": precolab.nombre,
         "correo": precolab.correo,
         "id_lider": relacion.id_lider,
-        "nombre_lider": lider.nombre
+        "nombre_lider": lider.nombre,
+        "correo_lider": lider.correo
     }
 

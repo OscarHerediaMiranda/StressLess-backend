@@ -14,17 +14,15 @@ import string
 
 router = APIRouter()
 
-def generar_otp(longitud=6):
+def generar_otp(longitud=5):
     return ''.join(random.choices(string.digits, k=longitud))
 
 @router.post("/send-invitations/{id_lider}")
 def send_invitations(id_lider: int, session: Session = Depends(get_session), token = Depends(verify_token)):
-    # 1. Buscar al líder
     lider = session.exec(select(Lider).where(Lider.id == id_lider)).first()
     if not lider:
         raise HTTPException(status_code=404, detail="Líder no encontrado")
 
-    # 2. Buscar los precolaboradores que coinciden con el correo del líder
     precolabs = session.exec(
         select(PreColaborador).where(PreColaborador.correo_lider == lider.correo)
     ).all()
@@ -35,6 +33,9 @@ def send_invitations(id_lider: int, session: Session = Depends(get_session), tok
     enviados = []
 
     for precolab in precolabs:
+        # Generar un OTP único por colaborador
+        otp = generar_otp()
+
         # Crear la invitación
         otp = generar_otp()
         invitacion = Invitacion(
@@ -48,24 +49,25 @@ def send_invitations(id_lider: int, session: Session = Depends(get_session), tok
         session.commit()
         session.refresh(invitacion)
 
-        # Crear la relación en tabla intermedia
+        # Relación en tabla intermedia
         relacion = LiderColaborador(
             id_lider=id_lider,
-            id_colaborador=None,  # se llenará cuando el colaborador se registre
+            id_colaborador=None,
             estado="pendiente",
             id_invitacion=invitacion.id,
             fecha_inicio=date.today(),
             fecha_fin=date.today()
         )
         session.add(relacion)
+        session.commit()
 
-        enviar_correo(precolab.correo,otp)
+        # Enviar el correo con el código único
+        enviar_correo(precolab.correo, otp)
 
         enviados.append({
             "nombre": precolab.nombre,
             "correo": precolab.correo,
             "codigo": otp
-
         })
 
     session.commit()

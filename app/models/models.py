@@ -4,11 +4,11 @@ from typing import List, Optional
 from app.models.base import Base
 
 class LiderColaborador(SQLModel, table=True):
-    _tablename_ = "lidercolaborador"  # nombre de la tabla en minúsculas
+    __tablename__ = "lidercolaborador"  # nombre de la tabla en minúsculas
     _table_args_ = {"schema": "public"}  # esquema en PostgreSQL
     id: Optional[int] = Field(default=None, primary_key=True)
-    id_lider:int = Field(foreign_key="lider.id")
-    id_colaborador:int = Field(foreign_key="colaborador.id")
+    id_lider: int = Field(foreign_key="lider.id")
+    id_colaborador: Optional[int] = Field(default=None, foreign_key="colaborador.id")
     estado:str
     id_invitacion:int = Field(foreign_key="invitacion.id")
     fecha_inicio:date
@@ -19,7 +19,7 @@ class LiderColaborador(SQLModel, table=True):
     invitacion: Optional["Invitacion"] = Relationship(back_populates="lider_colaborador_link")
 
 class Lider(SQLModel, table=True):
-    _tablename_ = "lider"  # nombre de la tabla en minúsculas
+    __tablename__ = "lider"  # nombre de la tabla en minúsculas
     _table_args_ = {"schema": "public"}  # esquema en PostgreSQL
     id: Optional[int] = Field(default=None, primary_key=True)
     nombre: str
@@ -40,7 +40,7 @@ class PreColaborador(SQLModel, table=True):
     invitacion_precolaborador_link: List["Invitacion"] = Relationship(back_populates="precolaborador")
 
 class Invitacion(SQLModel, table=True):
-    _tablename_ = "invitacion"  # nombre de la tabla en minúsculas
+    __tablename__ = "invitacion"  # nombre de la tabla en minúsculas
     _table_args_ = {"schema": "public"}  # esquema en PostgreSQL
     id:Optional[int] = Field(default=None, primary_key=True)
     id_precolaborador:int = Field(foreign_key="precolaborador.id")
@@ -53,7 +53,7 @@ class Invitacion(SQLModel, table=True):
     precolaborador: Optional[PreColaborador] = Relationship(back_populates="invitacion_precolaborador_link")
 
 class Notificacion(SQLModel, table=True):
-    _tablename_ = "notificacion"
+    __tablename__ = "notificacion"
     _table_args = {"schema": "public"} 
     id: Optional[int] = Field(default=None, primary_key=True)
     descripcion:str
@@ -67,7 +67,7 @@ class Notificacion(SQLModel, table=True):
         orm_mode = True
 
 class Prueba(SQLModel, table=True):
-    _tablename_ = "prueba" #nombre de la tabla en minúscula
+    __tablename__ = "prueba" #nombre de la tabla en minúscula
     _table_args_ = {"schema": "public"} # esquema en PostgreSQL
     id:Optional[int] = Field(default=None, primary_key=True)
     fecha_registro:date
@@ -83,7 +83,7 @@ class Prueba(SQLModel, table=True):
         orm_mode = True
 
 class Colaborador(SQLModel, table=True):
-    _tablename_ = "colaborador"  # nombre de la tabla en minúsculas
+    __tablename__ = "colaborador"  # nombre de la tabla en minúsculas
     _table_args_ = {"schema": "public"}  # esquema en PostgreSQL
     id: Optional[int] = Field(default=None, primary_key=True)
     nombre: str

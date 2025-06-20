@@ -130,3 +130,49 @@ def listarPrecolaboradoresById(leaders_id:int, session:Session = Depends(get_ses
     resultado_preColaborador = session.exec(consulta_preColaborador).all()    
 
     return resultado_preColaborador
+
+@router.get("/leaders/{leaders_id}/resumen-colaboradores")
+def getResumenColaboradores(leaders_id: int, session: Session = Depends(get_session)):
+    # Obtener líder
+    lider = session.exec(select(Lider).where(Lider.id == leaders_id)).first()
+    if not lider:
+        raise HTTPException(status_code=404, detail="Líder no encontrado")
+
+    # Obtener precolaboradores que fueron invitados por él
+    precolabs = session.exec(select(PreColaborador).where(PreColaborador.correo_lider == lider.correo)).all()
+
+    resultado = []
+
+    for precolab in precolabs:
+        # Verificar si ya se registró (existe en LiderColaborador con id_colaborador != null)
+        relacion = session.exec(
+            select(LiderColaborador).where(
+                LiderColaborador.id_lider == lider.id,
+                LiderColaborador.id_invitacion.in_(
+                    select(Invitacion.id).where(Invitacion.id_precolaborador == precolab.id)
+                )
+            )
+        ).first()
+
+        estado = "No registrado"
+        tiene_historial = False
+        colaborador_id = None
+
+        if relacion and relacion.id_colaborador:
+            estado = "Registrado"
+            colaborador_id = relacion.id_colaborador
+            # Buscar si tiene historial
+            from app.models.models import ResultadoAnalisis
+            historial = session.exec(select(ResultadoAnalisis).where(ResultadoAnalisis.id_colaborador == colaborador_id)).all()
+            if historial:
+                tiene_historial = True
+
+        resultado.append({
+            "nombre": precolab.nombre,
+            "correo": precolab.correo,
+            "estado": estado,
+            "colaborador_id": colaborador_id,
+            "tiene_historial": tiene_historial
+        })
+
+    return resultado
