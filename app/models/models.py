@@ -17,18 +17,6 @@ class LiderColaborador(SQLModel, table=True):
     lider: Optional["Lider"] = Relationship(back_populates="colaboradores_link")
     colaborador: Optional["Colaborador"] = Relationship(back_populates="lideres_link")
     invitacion: Optional["Invitacion"] = Relationship(back_populates="lider_colaborador_link")
-
-class Lider(SQLModel, table=True):
-    __tablename__ = "lider"  # nombre de la tabla en minúsculas
-    _table_args_ = {"schema": "public"}  # esquema en PostgreSQL
-    id: Optional[int] = Field(default=None, primary_key=True)
-    nombre: str
-    correo: str
-    contrasenia: str
-    estado: bool
-
-    colaboradores_link: List[LiderColaborador] = Relationship(back_populates="lider")
-
 class PreColaborador(SQLModel, table=True):
     __tablename__ = "precolaborador"
     _table_args_ = {"schema": "public"}  # esquema en PostgreSQL
@@ -52,20 +40,43 @@ class Invitacion(SQLModel, table=True):
     lider_colaborador_link: List[LiderColaborador] = Relationship(back_populates="invitacion")
     precolaborador: Optional[PreColaborador] = Relationship(back_populates="invitacion_precolaborador_link")
 
-class Notificacion(SQLModel, table=True):
-    __tablename__ = "notificacion"
+class NotificacionColaborador(SQLModel, table=True):
+    __tablename__ = "notificacionColaborador"
     _table_args = {"schema": "public"} 
     id: Optional[int] = Field(default=None, primary_key=True)
     descripcion:str
     estado:str
     fecha_envio:date
-    id_prueba:int = Field(foreign_key="prueba.id")
+
+    id_prueba: Optional[int] = Field(foreign_key="prueba.id")
+    id_colaborador:int = Field(foreign_key="colaborador.id")
 
     prueba:Optional["Prueba"] = Relationship(back_populates="notificacion_prueba_link")
-
+    colaborador:Optional["Colaborador"] = Relationship(back_populates="notificacion_colaborador_link")
     class Config:
         orm_mode = True
 
+class NotificacionLider(SQLModel, table=True):
+    __tablename__ = "notificacionlider"
+    _table_args = {"schema": "public"}
+    id: Optional[int] = Field(default=None, primary_key=True)
+    descripcion: str
+    leido: bool
+    id_lider:int = Field(foreign_key="lider.id")
+
+    lider:Optional["Lider"] = Relationship(back_populates="notificacion_lider_link") 
+
+class Lider(SQLModel, table=True):
+    __tablename__ = "lider"  # nombre de la tabla en minúsculas
+    _table_args_ = {"schema": "public"}  # esquema en PostgreSQL
+    id: Optional[int] = Field(default=None, primary_key=True)
+    nombre: str
+    correo: str
+    contrasenia: str
+    estado: bool
+
+    colaboradores_link: List[LiderColaborador] = Relationship(back_populates="lider")
+    notificacion_lider_link: List[NotificacionLider] = Relationship(back_populates="lider")
 class Prueba(SQLModel, table=True):
     __tablename__ = "prueba" #nombre de la tabla en minúscula
     _table_args_ = {"schema": "public"} # esquema en PostgreSQL
@@ -77,8 +88,7 @@ class Prueba(SQLModel, table=True):
     resultado:bool
 
     colaborador: Optional["Colaborador"] = Relationship(back_populates="prueba_colaborador_link")
-    notificacion_prueba_link: List[Notificacion] = Relationship(back_populates="prueba")
-
+    notificacion_prueba_link: List[NotificacionColaborador] = Relationship(back_populates="prueba")
     class Config:
         orm_mode = True
 
@@ -93,6 +103,7 @@ class Colaborador(SQLModel, table=True):
 
     lideres_link: List[LiderColaborador] = Relationship(back_populates="colaborador")
     prueba_colaborador_link: List[Prueba] = Relationship(back_populates="colaborador")
+    notificacion_colaborador_link: List[NotificacionColaborador] = Relationship(back_populates="colaborador")
     # Tabla PreColaborador
 
 class ResultadoAnalisis(SQLModel, table=True):

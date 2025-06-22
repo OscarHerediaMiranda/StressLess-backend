@@ -59,7 +59,7 @@ def register_colaborador(data: RegisterColaboradorRequest, session: Session = De
 
     session.commit()
 
-    return {"mensaje": "Colaborador registrado correctamente"}
+    return {"id":colaborador.id, "nombre":colaborador.nombre, "correo":colaborador.correo}
 
 
 @router.get("/validar-codigo/{codigo}")

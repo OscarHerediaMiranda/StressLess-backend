@@ -7,6 +7,7 @@ from app.database.database import create_tables
 from app.api.prueba import router as prueba_router
 from app.modelo_ML import router as ml_router
 from app.register_colaborator import router as register_colab_router
+from app.api.notificacion import router as notificacion_router
 
 app = FastAPI()
 
@@ -17,6 +18,7 @@ app.include_router(invitation_router)
 app.include_router(prueba_router)
 app.include_router(ml_router)
 app.include_router(register_colab_router)
+app.include_router(notificacion_router)
 
 @app.on_event("startup")
 def on_startup():

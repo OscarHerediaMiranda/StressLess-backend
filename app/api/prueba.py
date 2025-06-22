@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 from app.auth.jwt import verify_token
 from app.database.database import get_session
-from app.models.models import Invitacion, ResultadoAnalisis, LiderColaborador, Notificacion, PreColaborador, Prueba
+from app.models.models import Invitacion, ResultadoAnalisis, LiderColaborador, NotificacionColaborador, PreColaborador, Prueba
 from sqlmodel import Session, select
 
 router = APIRouter()
@@ -42,7 +42,7 @@ def envioPrueba(request:PruebaRequest, session:Session = Depends(get_session), t
             session.commit()
             session.refresh(prueba)
 
-            notificacion:Notificacion = Notificacion(
+            notificacion:NotificacionColaborador = NotificacionColaborador(
                 descripcion="Notificacion",
                 estado="Pendiente",
                 fecha_envio=datetime.now(),
@@ -76,8 +76,8 @@ def createPrueba(request:PruebaRequest, session:Session = Depends(get_session), 
         session.commit()
         session.refresh(prueba)
         
-        notificacion:Notificacion = Notificacion(
-            descripcion="Notificacion",
+        notificacion:NotificacionColaborador = NotificacionColaborador(
+            descripcion="Tu lider te ha enviado una prueba. Realizala ahora.",
             estado="Pendiente",
             fecha_envio=datetime.now(),
             id_prueba=prueba.id,
