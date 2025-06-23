@@ -14,18 +14,20 @@ class PruebaRequest(BaseModel):
     id_lider:int
     precollaborators:List[int]
 
-@router.post("/envio-prueba")
+@router.post("/pruebas")
 def envioPrueba(request:PruebaRequest, session:Session = Depends(get_session), token = Depends(verify_token)):
 
     pruebasNoEnviadas = []
 
     for i in request.precollaborators:
 
-        # validar los casos: reenvío de invitación o líder nuevo
+        #VALIDAR LOS CASOS: REENVÍO DE INVITACIÓN O LÍDER NUEVO
+
         consulta = select(Invitacion).where(Invitacion.id_precolaborador == i)
         invitacion = session.exec(consulta).first()
 
-        # validar si la invitación fue aceptada o no
+        # VALIDAR SI LA INVITACIÓN FUE ACEPTADA O NO
+
         if invitacion.estado == True:
             consulta_liderColaborador = select(LiderColaborador).where(LiderColaborador.id_invitacion == invitacion.id)
             liderColaborador = session.exec(consulta_liderColaborador).first()
@@ -35,7 +37,7 @@ def envioPrueba(request:PruebaRequest, session:Session = Depends(get_session), t
                 fecha_resultado=None,
                 id_colaborador=liderColaborador.id_colaborador,
                 estado=1,
-                resultado=True, 
+                resultado=None, 
             )
 
             session.add(prueba)
@@ -61,34 +63,32 @@ def envioPrueba(request:PruebaRequest, session:Session = Depends(get_session), t
     return pruebasNoEnviadas
         
 
-@router.post("/prueba")
-def createPrueba(request:PruebaRequest, session:Session = Depends(get_session), token = Depends(verify_token)):
+# @router.post("/prueba")
+# def createPrueba(request:PruebaRequest, session:Session = Depends(get_session), token = Depends(verify_token)):
 
-    for i in request.precollaborators:
-        prueba:Prueba = Prueba(
-            fecha_registro=datetime.now(),
-            fecha_resultado=None,
-            id_colaborador=i,
-            estado=1,
-            resultado=True,
-        )
-        session.add(prueba)
-        session.commit()
-        session.refresh(prueba)
+#     for i in request.precollaborators:
+#         prueba:Prueba = Prueba(
+#             fecha_registro=datetime.now(),
+#             fecha_resultado=None,
+#             id_colaborador=i,
+#             estado=1,
+#             resultado=None,
+#         )
+#         session.add(prueba)
+#         session.commit()
+#         session.refresh(prueba)
         
-        notificacion:NotificacionColaborador = NotificacionColaborador(
-            descripcion="Tu lider te ha enviado una prueba. Realizala ahora.",
-            estado="Pendiente",
-            fecha_envio=datetime.now(),
-            id_prueba=prueba.id,
-        )
-        session.add(notificacion),
-        session.commit()
-        session.refresh(notificacion)
+#         notificacion:NotificacionColaborador = NotificacionColaborador(
+#             descripcion="Tu lider te ha enviado una prueba. Realizala ahora.",
+#             estado="Pendiente",
+#             fecha_envio=datetime.now(),
+#             id_prueba=prueba.id,
+#         )
+#         session.add(notificacion),
+#         session.commit()
+#         session.refresh(notificacion)
 
-    # CREAR ENDPOINT QUE LISTE NOTIFICACIONES DE COLABORADOR O LÍDER (POR ID)
-    # ENDPOINT QUE BUSQUE LA PRUEBA POR ID.
-    return {"prueba":prueba,"notificacion":notificacion}
+#     return {"prueba":prueba,"notificacion":notificacion}
 
 
 @router.get("/historial/{id_colaborador}")

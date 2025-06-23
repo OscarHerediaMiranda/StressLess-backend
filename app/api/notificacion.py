@@ -5,7 +5,7 @@ from sqlmodel import Session, select
 
 from app.auth.jwt import verify_token
 from app.database.database import get_session
-from app.models.models import NotificacionColaborador, NotificacionLider, Prueba
+from app.models.models import Lider, NotificacionColaborador, NotificacionLider, Prueba
 
 router = APIRouter()
 
@@ -17,15 +17,15 @@ class NotificacionRequest(BaseModel):
 def notificacionColaborador(id_colaborador:int, session:Session = Depends(get_session), token = Depends(verify_token)):
 
     consulta = select(NotificacionColaborador).where(NotificacionColaborador.id_colaborador == id_colaborador)
-    colaborador = session.exec(consulta).all()
+    notificaciones = session.exec(consulta).all()
 
-    return colaborador
+    return notificaciones
 
 @router.get("/notificaciones/lider/{id_lider}")
 def notificacionLider(id_lider:int, session:Session = Depends(get_session), token = Depends(verify_token)):
 
     consulta = select(NotificacionLider).where(NotificacionLider.id_lider == id_lider)
-    lider = session.exec(consulta).all()
+    notificaciones = session.exec(consulta).all()
 
-    return lider
+    return notificaciones
     
